@@ -40,12 +40,7 @@ def find_independent_prob(p_a, p_b, p_c, p_d, p_e, p_f, p_g, data):
 if __name__ == '__main__':
     arr = np.load('data 1.npy')
     number_of_data = len(arr[0])
-    # g_d = 0
-    # not_g_d = 0
-    # g_not_d = 0
-    # not_g_not_d = 0
-    # for i in range(len(arr[0])):
-    #     if arr[3][i] == True and arr[6][i] == True:
+
     p_a = 0
     p_b = 0
     p_c = 0
@@ -72,8 +67,12 @@ if __name__ == '__main__':
     d_and_not_a_not_b = 0
     p_a_b = 0
     p_a_not_b = 0
+    p_not_a_b = 0
+    p_not_a_not_b = 0
 
     for i in range(len(arr[0])):
+        if not arr[0][i] and not arr[1][i]:
+            p_not_a_not_b += 1
         if arr[0][i]:  # a
             p_a += 1
             if arr[1][i]:
@@ -82,19 +81,21 @@ if __name__ == '__main__':
                 p_a_not_b += 1
         if arr[1][i]:  # b
             p_b += 1
+            if not arr[0][i]:  # b true and a false
+                p_not_a_b += 1
         if arr[2][i]:  # c
             p_c += 1
             if arr[0][i]:  # both c and a true
                 c_and_a += 1
             else:
-                c_and_not_a = 1  # c true and a false
+                c_and_not_a += 1  # c true and a false
         if arr[3][i]:  # d
             p_d += 1
-            if arr[1][i] and arr[2][i]:  # d true and a true and b true
+            if arr[0][i] and arr[1][i]:  # d true and a true and b true
                 d_and_a_b += 1
-            elif arr[1][i] and not arr[2][i]:
+            elif arr[0][i] and not arr[1][i]:
                 d_and_a_not_b += 1
-            elif not arr[1][i] and arr[2][i]:
+            elif not arr[0][i] and arr[1][i]:
                 d_and_not_a_b += 1
             else:
                 d_and_not_a_not_b += 1
@@ -120,33 +121,33 @@ if __name__ == '__main__':
                 g_and_not_d += 1  # g true and d false
 
     g_d = g_and_d / p_d
-    not_g_not_d = 1 - g_d
+    not_g_d = 1 - g_d
     g_not_d = g_and_not_d / (number_of_data - p_d)
-    not_g_d = 1 - g_not_d
+    not_g_not_d = 1 - g_not_d
 
     f_c = f_and_c / p_c
-    not_f_not_c = 1 - f_c
-    f_not_c = f_and_not_c / (number_of_data - f_c)
-    not_f_c = 1 - f_not_c
+    not_f_c = 1 - f_c
+    f_not_c = f_and_not_c / (number_of_data - p_c)
+    not_f_not_c = 1 - f_not_c
 
     e_c = e_and_c / p_c
-    not_e_not_c = 1 - e_c
+    not_e_c = 1 - e_c
     e_not_c = e_and_not_c / (number_of_data - p_c)
-    not_e_c = 1 - e_not_c
+    not_e_not_c = 1 - e_not_c
 
     c_a = c_and_a / p_a
-    not_c_not_a = 1 - c_a
+    not_c_a = 1 - c_a
     c_not_a = c_and_not_a / (number_of_data - p_a)
-    not_c_a = 1 - c_not_a
+    not_c_not_a = 1 - c_not_a
 
     d_a_b = d_and_a_b / p_a_b
-    not_d_not_a_not_b = 1 - d_a_b
-    d_not_a_b = d_and_not_a_b / (number_of_data - p_a_not_b)
-    not_d_a_not_b = 1 - d_not_a_b
+    not_d_a_b = 1 - d_a_b
+    d_not_a_b = d_and_not_a_b / p_not_a_b
+    not_d_not_a_b = 1 - d_not_a_b
     d_a_not_b = d_and_a_not_b / p_a_not_b
-    not_d_not_a_b = 1 - d_a_not_b
-    d_not_a_not_b = d_and_not_a_not_b / (number_of_data - p_a_b)
-    not_d_a_b = 1 - d_not_a_not_b
+    not_d_a_not_b = 1 - d_a_not_b
+    d_not_a_not_b = d_and_not_a_not_b / p_not_a_not_b
+    not_d_not_a_not_b = 1 - d_not_a_not_b
 
     p_a /= number_of_data
     p_b /= number_of_data

@@ -3,7 +3,6 @@ from itertools import product
 import copy
 
 
-
 def find_solution(data):
     ac_count = 0
     dg_count = 0
@@ -38,6 +37,8 @@ def find_independent_prob(p_a, p_b, p_c, p_d, p_e, p_f, p_g, data):
     p_e /= len(data[0])
     p_f /= len(data[0])
     p_g /= len(data[0])
+
+
 def mainEquation(a, b, c, d, e, f, g):
     equation_dict = {
         "A": p_a,
@@ -69,8 +70,8 @@ def mainEquation(a, b, c, d, e, f, g):
         "nDAnB": not_d_a_not_b,
         "nDnAnB": not_d_not_a_not_b
     }
-    print(b)
-    result = equation_dict[a] * equation_dict[b] * equation_dict[c + a] * equation_dict[e + c] * equation_dict[g + d] * equation_dict[c + a] * equation_dict[d + a + b] * equation_dict[f + c]
+    result = equation_dict[a] * equation_dict[b] * equation_dict[c + a] * equation_dict[e + c] * equation_dict[g + d] * \
+             equation_dict[c + a] * equation_dict[d + a + b] * equation_dict[f + c]
 
     return result
 
@@ -101,6 +102,55 @@ def sortVariableList(given_list, missing_list):
                     swapped = True
     print(missing_list)
     return missing_list
+
+
+def findProbability(variables):
+    variable_dict = {
+        "A": p_a,
+        "B": p_b,
+        "C": p_c,
+        "D": p_d,
+        "E": p_e,
+        "F": p_f,
+        "G": p_g,
+        "nA": 1 - p_a,
+        "nB": 1 - p_b,
+        "nC": 1 - p_c,
+        "nD": 1 - p_d,
+        "nE": 1 - p_e,
+        "nF": 1 - p_f,
+        "nG": 1 - p_g,
+    }
+
+    pay_list = []
+    for item in variables:
+        if len(item) == 1:
+            # pay_dict[item] = variable_dict[item]
+            # pay_dict["n" + item] = variable_dict["n" + item]
+            del variable_dict[item]
+            del variable_dict["n" + item]
+        else:
+            # pay_dict[item] = variable_dict[item]
+            # pay_dict[item[1]] = variable_dict[item[1]]
+            del variable_dict[item]
+            del variable_dict[item[1]]
+
+    for missing_variables in list(variable_dict.keys()):
+        if len(missing_variables) == 1:
+            small_list = [missing_variables, "n" + missing_variables]
+            pay_list.append(small_list)
+
+    result = 0
+
+    for elements in list(product(*pay_list)):
+        print(list(elements))
+
+        sortedVariableList = sortVariableList(list(elements), copy.deepcopy(variables))
+        result += mainEquation(sortedVariableList[0], sortedVariableList[1], sortedVariableList[2],
+                               sortedVariableList[3], sortedVariableList[4], sortedVariableList[5],
+                               sortedVariableList[6])
+
+    return result
 
 
 if __name__ == '__main__':
@@ -223,7 +273,6 @@ if __name__ == '__main__':
     p_e /= number_of_data
     p_f /= number_of_data
     p_g /= number_of_data
-    print(p_g)
 
     variable_dict = {
         "A": p_a,
@@ -242,34 +291,9 @@ if __name__ == '__main__':
         "nG": 1 - p_g,
     }
 
-    pay = ["A", "C"]
+    pay = ["D", "nG", "A", "C"]
     payda = ["A", "C"]
-    pay_list = []
-    pay_dict = {}
-    for item in pay:
-        if len(item) == 1:
-            pay_dict[item] = variable_dict[item]
-            pay_dict["n" + item] = variable_dict["n" + item]
-            del variable_dict[item]
-            del variable_dict["n" + item]
-        else:
-            pay_dict[item] = variable_dict[item]
-            pay_dict[item[1]] = variable_dict[item[1]]
-            del variable_dict[item]
-            del variable_dict[item[1]]
-
-    for missing_variables in list(variable_dict.keys()):
-        if len(missing_variables) == 1:
-            small_list = [missing_variables, "n" + missing_variables]
-            pay_list.append(small_list)
-
-    print(pay_list)
-    print(list(variable_dict.keys()))
-
-    a = 0
-    for elements in product(pay_list[0]):
-        print(list(elements))
-        mylist = sortVariableList(list(elements), copy.deepcopy(pay))
-        a += mainEquation(mylist[0], mylist[1], mylist[2], mylist[3], mylist[4], mylist[5], mylist[6])
-
-    print(a)
+    # pay_dict = {}
+    a = findProbability(pay)
+    b = findProbability(payda)
+    print(a/b)

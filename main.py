@@ -3,40 +3,34 @@ from itertools import product
 import copy
 
 
-def find_solution(data):
-    ac_count = 0
-    dg_count = 0
+def find_solution(query, condition, data):  # yöntem 2 eklenece
+    query_count = 0
+    condition_count = 0
     for i in range(len(data[0])):
-        if data[0][i] == True and data[2][i] == True:
-            ac_count += 1
-            if data[3][i] == True and data[6][i] == False:
-                dg_count += 1
-    print(dg_count / ac_count)
+        q_match_count = 0
+        match_count = 0
+        for variable in condition:
+            if len(variable) == 1:
+                if data[ord(variable) - 65][i]:
+                    match_count += 1
+            else:
+                if data[ord(variable[1])-65][i] == False:
+                    match_count += 1
 
+        if match_count == len(condition):
+            condition_count +=1
+            for q_variable in query:
+                if len(q_variable) == 1:
+                    if data[ord(q_variable) - 65][i]:
+                        q_match_count += 1
+                else:
+                    if data[ord(q_variable[1]) - 65][i] == False:
+                        q_match_count += 1
 
-def find_independent_prob(p_a, p_b, p_c, p_d, p_e, p_f, p_g, data):
-    for i in range(len(data[0])):
-        if data[0][i]:
-            p_a += 1
-        if data[1][i]:
-            p_b += 1
-        if data[2][i]:
-            p_c += 1
-        if data[3][i]:
-            p_d += 1
-        if data[4][i]:
-            p_e += 1
-        if data[5][i]:
-            p_f += 1
-        if data[6][i]:
-            p_g += 1
-    p_a /= len(data[0])
-    p_b /= len(data[0])
-    p_c /= len(data[0])
-    p_d /= len(data[0])
-    p_e /= len(data[0])
-    p_f /= len(data[0])
-    p_g /= len(data[0])
+            if q_match_count == len(query):
+                query_count += 1
+
+    print(query_count / condition_count)
 
 
 def mainEquation(a, b, c, d, e, f, g):
@@ -104,7 +98,7 @@ def sortVariableList(given_list, missing_list):
     return missing_list
 
 
-def findProbability(variables):
+def findProbabilityWithBayesian(variables):
     variable_dict = {
         "A": p_a,
         "B": p_b,
@@ -125,13 +119,9 @@ def findProbability(variables):
     pay_list = []
     for item in variables:
         if len(item) == 1:
-            # pay_dict[item] = variable_dict[item]
-            # pay_dict["n" + item] = variable_dict["n" + item]
             del variable_dict[item]
             del variable_dict["n" + item]
         else:
-            # pay_dict[item] = variable_dict[item]
-            # pay_dict[item[1]] = variable_dict[item[1]]
             del variable_dict[item]
             del variable_dict[item[1]]
 
@@ -143,8 +133,6 @@ def findProbability(variables):
     result = 0
 
     for elements in list(product(*pay_list)):
-        print(list(elements))
-
         sortedVariableList = sortVariableList(list(elements), copy.deepcopy(variables))
         result += mainEquation(sortedVariableList[0], sortedVariableList[1], sortedVariableList[2],
                                sortedVariableList[3], sortedVariableList[4], sortedVariableList[5],
@@ -157,7 +145,7 @@ if __name__ == '__main__':
     arr = np.load('data 1.npy')
     number_of_data = len(arr[0])
 
-    p_a = 0  # TODO make them one line
+    p_a = 0
     p_b = 0
     p_c = 0
     p_d = 0
@@ -274,26 +262,12 @@ if __name__ == '__main__':
     p_f /= number_of_data
     p_g /= number_of_data
 
-    variable_dict = {
-        "A": p_a,
-        "B": p_b,
-        "C": p_c,
-        "D": p_d,
-        "E": p_e,
-        "F": p_f,
-        "G": p_g,
-        "nA": 1 - p_a,
-        "nB": 1 - p_b,
-        "nC": 1 - p_c,
-        "nD": 1 - p_d,
-        "nE": 1 - p_e,
-        "nF": 1 - p_f,
-        "nG": 1 - p_g,
-    }
 
     pay = ["D", "nG", "A", "C"]
     payda = ["A", "C"]
-    # pay_dict = {}
-    a = findProbability(pay)
-    b = findProbability(payda)
-    print(a/b)
+
+    a = findProbabilityWithBayesian(pay)
+    b = findProbabilityWithBayesian(payda)
+    print(a / b)
+
+find_solution(["D","nG"],payda,arr)

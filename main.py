@@ -3,66 +3,37 @@ from itertools import product
 import copy
 
 
-def find_solution_with_data_only(query, condition, data):  # finding solution with data
-    query_count = 0
-    condition_count = 0
-    for i in range(len(data[0])):  # iterate for every column
-        q_match_count = 0
-        match_count = 0
-        for variable in condition:
-            if len(variable) == 1:
-                if data[ord(variable) - 65][i]:  # using ascii a becomes 0th index
-                    match_count += 1
-            else:
-                if data[ord(variable[1]) - 65][i] == False:
-                    match_count += 1
-
-        if match_count == len(condition):  # if all the variables in condition matches
-            condition_count += 1  # we need to increase number of total correct condition
-            for q_variable in query:
-                if len(q_variable) == 1:
-                    if data[ord(q_variable) - 65][i]:
-                        q_match_count += 1
-                else:
-                    if data[ord(q_variable[1]) - 65][i] == False:
-                        q_match_count += 1
-
-            if q_match_count == len(query):  # if all the variables in the querry matches
-                query_count += 1  # we also increase the query
-
-    return (query_count / condition_count)
-
-
 def mainEquation(a, b, c, d, e, f, g):
     equation_dict = {  # a dictionary holds all possible equations and their probabilities
+        # I used this structure instead of using many for loops because our network is limited and it is certain that what variables we will use.
         "A": p_a,
         "B": p_b,
-        "nA": 1 - p_a,
-        "nB": 1 - p_b,
+        "NA": 1 - p_a,
+        "NB": 1 - p_b,
         "CA": c_a,
-        "nCA": not_c_a,
-        "CnA": c_not_a,
-        "nCnA": not_c_not_a,
+        "NCA": not_c_a,
+        "CNA": c_not_a,
+        "NCNA": not_c_not_a,
         "GD": g_d,
-        "nGD": not_g_d,
-        "GnD": g_not_d,
-        "nGnD": not_g_not_d,
+        "NGD": not_g_d,
+        "GND": g_not_d,
+        "NGND": not_g_not_d,
         "FC": f_c,
-        "nFC": not_f_c,
-        "FnC": f_not_c,
-        "nFnC": not_f_not_c,
+        "NFC": not_f_c,
+        "FNC": f_not_c,
+        "NFNC": not_f_not_c,
         "EC": e_c,
-        "nEC": not_e_c,
-        "EnC": e_not_c,
-        "nEnC": not_e_not_c,
+        "NEC": not_e_c,
+        "ENC": e_not_c,
+        "NENC": not_e_not_c,
         "DAB": d_a_b,
-        "nDAB": not_d_a_b,
-        "DnAB": d_not_a_b,
-        "DAnB": d_a_not_b,
-        "DnAnB": d_not_a_not_b,
-        "nDnAB": not_d_not_a_b,
-        "nDAnB": not_d_a_not_b,
-        "nDnAnB": not_d_not_a_not_b
+        "NDAB": not_d_a_b,
+        "DNAB": d_not_a_b,
+        "DANB": d_a_not_b,
+        "DNANB": d_not_a_not_b,
+        "NDNAB": not_d_not_a_b,
+        "NDANB": not_d_a_not_b,
+        "NDNANB": not_d_not_a_not_b
     }
     # takes the probability of variable from dictionary and multiply them to find result
     result = equation_dict[a] * equation_dict[b] * equation_dict[c + a] * equation_dict[e + c] * equation_dict[g + d] * \
@@ -76,7 +47,7 @@ def sortVariableList(given_list, missing_list):  # it takes the input list and t
         missing_list.append(item)
 
     swapped = True
-    while swapped:  # we mix the lists and then sort it in alphabetic order.
+    while swapped:  # we mix the lists and then sort it in alphabetic order. A simple bubble sort
         swapped = False
         for i in range(len(missing_list) - 1):  # for every variable we should know if it is negative or positive
             if len(missing_list[i]) == 1 and len(missing_list[i + 1]) == 1:
@@ -107,13 +78,13 @@ def findProbabilityWithBayesian(variables):
         "E": p_e,
         "F": p_f,
         "G": p_g,
-        "nA": 1 - p_a,
-        "nB": 1 - p_b,
-        "nC": 1 - p_c,
-        "nD": 1 - p_d,
-        "nE": 1 - p_e,
-        "nF": 1 - p_f,
-        "nG": 1 - p_g,
+        "NA": 1 - p_a,
+        "NB": 1 - p_b,
+        "NC": 1 - p_c,
+        "ND": 1 - p_d,
+        "NE": 1 - p_e,
+        "NF": 1 - p_f,
+        "NG": 1 - p_g,
     }
 
     combination_list = []
@@ -122,7 +93,7 @@ def findProbabilityWithBayesian(variables):
             if item in variable_dict.keys():
                 del variable_dict[
                     item]  # we delete the input variables from list so at the end, there will be a list of variables not in the input
-                del variable_dict["n" + item]  # we also should delete the negative of variable.
+                del variable_dict["N" + item]  # we also should delete the negative of variable.
         else:
             if item in variable_dict.keys():
                 del variable_dict[item]  # if negative variable
@@ -130,7 +101,7 @@ def findProbabilityWithBayesian(variables):
 
     for missing_variables in list(variable_dict.keys()):
         if len(missing_variables) == 1:  # for all missing variables, we store them in list of 2 as pair
-            small_list = [missing_variables, "n" + missing_variables]
+            small_list = [missing_variables, "N" + missing_variables]
             combination_list.append(small_list)
 
     result = 0
@@ -144,6 +115,71 @@ def findProbabilityWithBayesian(variables):
                                sorted_variable_list[6])
 
     return result
+
+
+def find_solution_with_data_only(query, condition, data):  # finding solution with data
+    query_count = 0
+    condition_count = 0
+    for i in range(len(data[0])):  # iterate for every column
+        q_match_count = 0
+        match_count = 0
+        for variable in condition:
+            if len(variable) == 1:
+                if data[ord(variable) - 65][i]:  # using ascii a becomes 0th index
+                    match_count += 1
+            else:
+                if data[ord(variable[1]) - 65][i] == False:
+                    match_count += 1
+
+        if match_count == len(condition):  # if all the variables in condition matches
+            condition_count += 1  # we need to increase number of total correct condition
+            for q_variable in query:
+                if len(q_variable) == 1:
+                    if data[ord(q_variable) - 65][i]:
+                        q_match_count += 1
+                else:
+                    if data[ord(q_variable[1]) - 65][i] == False:
+                        q_match_count += 1
+
+            if q_match_count == len(query):  # if all the variables in the querry matches
+                query_count += 1  # we also increase the query
+
+    return (query_count / condition_count)
+
+
+def runApp():
+    flag = True
+    while flag:
+        print("Enter Q one of inputs to quit")
+        query_variables = input("Please give query variables:").upper()
+        evidence_variables = input("Please give evidence variables:").upper()
+        if query_variables == "Q" or evidence_variables == "Q":
+            flag = False
+        else:
+            query_array = query_variables.split(" ")
+            evidence_array = evidence_variables.split(" ")
+            evidence_array_with_query = copy.deepcopy(query_array)
+            isImpossible = False
+            for items in evidence_array:
+                if items not in evidence_array_with_query:
+                    evidence_array_with_query.append(items)
+                if "N" + items in evidence_array_with_query:
+                    isImpossible = True
+                if len(items) == 2:
+                    if items[1] in evidence_array_with_query:
+                        isImpossible = True
+
+            if not isImpossible:
+                a = findProbabilityWithBayesian(evidence_array_with_query)
+                b = findProbabilityWithBayesian(evidence_array)
+
+                print("The probability calculated by inference is ", a / b)
+
+                print("The probability calculated from data is ",
+                      find_solution_with_data_only(query_array, evidence_array, arr))
+            else:
+                print("The probability calculated by inference is ", 0)
+                print("The probability calculated rom data is ", 0)
 
 
 if __name__ == '__main__':
@@ -268,30 +304,4 @@ if __name__ == '__main__':
     p_f /= number_of_data
     p_g /= number_of_data
 
-    query_variables = input("Please give query variables:")
-    evidence_variables = input("Please give evidence variables:")
-    pay = query_variables.split(" ")
-    payda = evidence_variables.split(" ")
-    pay2 = copy.deepcopy(pay)
-    isImpossible = False
-    for items in payda:
-        if items not in pay2:
-            pay2.append(items)
-        if "n" + items in pay2:
-            isImpossible = True
-        if len(items) == 2:
-            if items[1] in pay2:
-                isImpossible = True
-
-    # pay = ["D", "nG", "A", "C"]
-    # payda = ["A", "C"]
-    if not isImpossible:
-        a = findProbabilityWithBayesian(pay2)
-        b = findProbabilityWithBayesian(payda)
-
-        print(a / b)
-
-        print(find_solution_with_data_only(pay, payda, arr))
-    else:
-        print(0)
-        print(0)
+    runApp()

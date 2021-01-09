@@ -130,7 +130,6 @@ def find_solution_with_data_only(query, condition, data):  # finding solution wi
             else:
                 if data[ord(variable[1]) - 65][i] == False:
                     match_count += 1
-
         if match_count == len(condition):  # if all the variables in condition matches
             condition_count += 1  # we need to increase number of total correct condition
             for q_variable in query:
@@ -144,15 +143,15 @@ def find_solution_with_data_only(query, condition, data):  # finding solution wi
             if q_match_count == len(query):  # if all the variables in the querry matches
                 query_count += 1  # we also increase the query
 
-    return (query_count / condition_count)
+    return query_count / condition_count
 
 
 def runApp():
     flag = True
     while flag:
         print("Enter Q one of inputs to quit")
-        query_variables = input("Please give query variables:").upper()
-        evidence_variables = input("Please give evidence variables:").upper()
+        query_variables = input("Please give query variables:").strip().upper()
+        evidence_variables = input("Please give evidence variables:").strip().upper()
         if query_variables == "Q" or evidence_variables == "Q":
             flag = False
         else:
@@ -160,6 +159,9 @@ def runApp():
             evidence_array = evidence_variables.split(" ")
             evidence_array_with_query = copy.deepcopy(query_array)
             isImpossible = False
+            if "" in evidence_array:
+                evidence_array.remove("")
+
             for items in evidence_array:
                 if items not in evidence_array_with_query:
                     evidence_array_with_query.append(items)
@@ -171,15 +173,17 @@ def runApp():
 
             if not isImpossible:
                 a = findProbabilityWithBayesian(evidence_array_with_query)
-                b = findProbabilityWithBayesian(evidence_array)
-
+                if len(evidence_array) != 0:
+                    b = findProbabilityWithBayesian(evidence_array)
+                else:
+                    b = 1  # if we have not condition given we take it simply 1 to not effect division.
                 print("The probability calculated by inference is ", a / b)
 
                 print("The probability calculated from data is ",
                       find_solution_with_data_only(query_array, evidence_array, arr))
             else:
                 print("The probability calculated by inference is ", 0)
-                print("The probability calculated rom data is ", 0)
+                print("The probability calculated from data is ", 0)
 
 
 if __name__ == '__main__':
